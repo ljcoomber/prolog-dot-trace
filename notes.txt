@@ -1,0 +1,366 @@
+Detailed execution dump of basic tail recursive factorial predicate.
+
+exit: 148: 158
+  148: alternative: 108
+  148: has_alternatives: false
+  148: goal: start_trace(test-out.dot,user)
+  148: predicate_indicator: start_trace/2
+  148: clause: <clause>(0xa1304c8)
+  148: level: 7
+  148: parent: 131
+  148: context_module: user
+  148: top: false
+  148: hidden: false
+  148: pc: 7
+  148: argument(1): test-out.dot
+call: 148: 140
+  148: alternative: no
+  148: has_alternatives: false
+  148: goal: factorial(3,1,_G423)
+  148: predicate_indicator: factorial/3
+  148: clause: no
+  148: level: 7
+  148: parent: 131
+  148: context_module: user
+  148: top: false
+  148: hidden: false
+  148: pc: 14
+  148: argument(1): 3
+call: 169: 161
+  169: alternative: no
+  169: has_alternatives: false
+  169: goal: system: (3>0)
+  169: predicate_indicator: system: (>)/2
+  169: clause: no
+  169: level: 8
+  169: parent: 148
+  169: context_module: user
+  169: top: false
+  169: hidden: false
+  169: pc: 6
+  169: argument(1): 3
+exit: 169: 179
+  169: alternative: 108
+  169: has_alternatives: false
+  169: goal: system: (3>0)
+  169: predicate_indicator: system: (>)/2
+  169: clause: no
+  169: level: 8
+  169: parent: 148
+  169: context_module: user
+  169: top: false
+  169: hidden: false
+  169: pc: 6
+  169: argument(1): 3
+call: 169: 161
+  169: alternative: no
+  169: has_alternatives: false
+  169: goal: system: (_G427 is 3*1)
+  169: predicate_indicator: system: (is)/2
+  169: clause: no
+  169: level: 8
+  169: parent: 148
+  169: context_module: user
+  169: top: false
+  169: hidden: false
+  169: pc: 17
+  169: argument(1): _G427
+exit: 169: 179
+  169: alternative: 108
+  169: has_alternatives: false
+  169: goal: system: (3 is 3*1)
+  169: predicate_indicator: system: (is)/2
+  169: clause: no
+  169: level: 8
+  169: parent: 148
+  169: context_module: user
+  169: top: false
+  169: hidden: false
+  169: pc: 17
+  169: argument(1): 3
+call: 169: 161
+  169: alternative: no
+  169: has_alternatives: false
+  169: goal: system: (_G430 is 3+ -1)
+  169: predicate_indicator: system: (is)/2
+  169: clause: no
+  169: level: 8
+  169: parent: 148
+  169: context_module: user
+  169: top: false
+  169: hidden: false
+  169: pc: 21
+  169: argument(1): _G430
+exit: 169: 179
+  169: alternative: 108
+  169: has_alternatives: false
+  169: goal: system: (2 is 3+ -1)
+  169: predicate_indicator: system: (is)/2
+  169: clause: no
+  169: level: 8
+  169: parent: 148
+  169: context_module: user
+  169: top: false
+  169: hidden: false
+  169: pc: 21
+  169: argument(1): 2
+call: 169: 161
+  169: alternative: no
+  169: has_alternatives: false
+  169: goal: factorial(2,3,_G429)
+  169: predicate_indicator: factorial/3
+  169: clause: no
+  169: level: 8
+  169: parent: 148
+  169: context_module: user
+  169: top: false
+  169: hidden: false
+  169: pc: 28
+  169: argument(1): 2
+call: 190: 182
+  190: alternative: no
+  190: has_alternatives: false
+  190: goal: system: (2>0)
+  190: predicate_indicator: system: (>)/2
+  190: clause: no
+  190: level: 9
+  190: parent: 169
+  190: context_module: user
+  190: top: false
+  190: hidden: false
+  190: pc: 6
+  190: argument(1): 2
+exit: 190: 200
+  190: alternative: 108
+  190: has_alternatives: false
+  190: goal: system: (2>0)
+  190: predicate_indicator: system: (>)/2
+  190: clause: no
+  190: level: 9
+  190: parent: 169
+  190: context_module: user
+  190: top: false
+  190: hidden: false
+  190: pc: 6
+  190: argument(1): 2
+call: 190: 182
+  190: alternative: no
+  190: has_alternatives: false
+  190: goal: system: (_G433 is 2*3)
+  190: predicate_indicator: system: (is)/2
+  190: clause: no
+  190: level: 9
+  190: parent: 169
+  190: context_module: user
+  190: top: false
+  190: hidden: false
+  190: pc: 17
+  190: argument(1): _G433
+exit: 190: 200
+  190: alternative: 108
+  190: has_alternatives: false
+  190: goal: system: (6 is 2*3)
+  190: predicate_indicator: system: (is)/2
+  190: clause: no
+  190: level: 9
+  190: parent: 169
+  190: context_module: user
+  190: top: false
+  190: hidden: false
+  190: pc: 17
+  190: argument(1): 6
+call: 190: 182
+  190: alternative: no
+  190: has_alternatives: false
+  190: goal: system: (_G436 is 2+ -1)
+  190: predicate_indicator: system: (is)/2
+  190: clause: no
+  190: level: 9
+  190: parent: 169
+  190: context_module: user
+  190: top: false
+  190: hidden: false
+  190: pc: 21
+  190: argument(1): _G436
+exit: 190: 200
+  190: alternative: 108
+  190: has_alternatives: false
+  190: goal: system: (1 is 2+ -1)
+  190: predicate_indicator: system: (is)/2
+  190: clause: no
+  190: level: 9
+  190: parent: 169
+  190: context_module: user
+  190: top: false
+  190: hidden: false
+  190: pc: 21
+  190: argument(1): 1
+call: 190: 182
+  190: alternative: no
+  190: has_alternatives: false
+  190: goal: factorial(1,6,_G435)
+  190: predicate_indicator: factorial/3
+  190: clause: no
+  190: level: 9
+  190: parent: 169
+  190: context_module: user
+  190: top: false
+  190: hidden: false
+  190: pc: 28
+  190: argument(1): 1
+call: 211: 203
+  211: alternative: no
+  211: has_alternatives: false
+  211: goal: system: (1>0)
+  211: predicate_indicator: system: (>)/2
+  211: clause: no
+  211: level: 10
+  211: parent: 190
+  211: context_module: user
+  211: top: false
+  211: hidden: false
+  211: pc: 6
+  211: argument(1): 1
+exit: 211: 221
+  211: alternative: 108
+  211: has_alternatives: false
+  211: goal: system: (1>0)
+  211: predicate_indicator: system: (>)/2
+  211: clause: no
+  211: level: 10
+  211: parent: 190
+  211: context_module: user
+  211: top: false
+  211: hidden: false
+  211: pc: 6
+  211: argument(1): 1
+call: 211: 203
+  211: alternative: no
+  211: has_alternatives: false
+  211: goal: system: (_G439 is 1*6)
+  211: predicate_indicator: system: (is)/2
+  211: clause: no
+  211: level: 10
+  211: parent: 190
+  211: context_module: user
+  211: top: false
+  211: hidden: false
+  211: pc: 17
+  211: argument(1): _G439
+exit: 211: 221
+  211: alternative: 108
+  211: has_alternatives: false
+  211: goal: system: (6 is 1*6)
+  211: predicate_indicator: system: (is)/2
+  211: clause: no
+  211: level: 10
+  211: parent: 190
+  211: context_module: user
+  211: top: false
+  211: hidden: false
+  211: pc: 17
+  211: argument(1): 6
+call: 211: 203
+  211: alternative: no
+  211: has_alternatives: false
+  211: goal: system: (_G442 is 1+ -1)
+  211: predicate_indicator: system: (is)/2
+  211: clause: no
+  211: level: 10
+  211: parent: 190
+  211: context_module: user
+  211: top: false
+  211: hidden: false
+  211: pc: 21
+  211: argument(1): _G442
+exit: 211: 221
+  211: alternative: 108
+  211: has_alternatives: false
+  211: goal: system: (0 is 1+ -1)
+  211: predicate_indicator: system: (is)/2
+  211: clause: no
+  211: level: 10
+  211: parent: 190
+  211: context_module: user
+  211: top: false
+  211: hidden: false
+  211: pc: 21
+  211: argument(1): 0
+call: 211: 203
+  211: alternative: no
+  211: has_alternatives: false
+  211: goal: factorial(0,6,_G441)
+  211: predicate_indicator: factorial/3
+  211: clause: no
+  211: level: 10
+  211: parent: 190
+  211: context_module: user
+  211: top: false
+  211: hidden: false
+  211: pc: 28
+  211: argument(1): 0
+exit: 211: 222
+  211: alternative: 108
+  211: has_alternatives: true
+  211: goal: factorial(0,6,6)
+  211: predicate_indicator: factorial/3
+  211: clause: <clause>(0xa130884)
+  211: level: 10
+  211: parent: 190
+  211: context_module: user
+  211: top: false
+  211: hidden: false
+  211: pc: 28
+  211: argument(1): 0
+exit: 190: 222
+  190: alternative: 108
+  190: has_alternatives: false
+  190: goal: factorial(1,6,6)
+  190: predicate_indicator: factorial/3
+  190: clause: <clause>(0xa1308fc)
+  190: level: 9
+  190: parent: 169
+  190: context_module: user
+  190: top: false
+  190: hidden: false
+  190: pc: 28
+  190: argument(1): 1
+exit: 169: 222
+  169: alternative: 108
+  169: has_alternatives: false
+  169: goal: factorial(2,3,6)
+  169: predicate_indicator: factorial/3
+  169: clause: <clause>(0xa1308fc)
+  169: level: 8
+  169: parent: 148
+  169: context_module: user
+  169: top: false
+  169: hidden: false
+  169: pc: 28
+  169: argument(1): 2
+exit: 148: 222
+  148: alternative: 108
+  148: has_alternatives: false
+  148: goal: factorial(3,1,6)
+  148: predicate_indicator: factorial/3
+  148: clause: <clause>(0xa1308fc)
+  148: level: 7
+  148: parent: 131
+  148: context_module: user
+  148: top: false
+  148: hidden: false
+  148: pc: 14
+  148: argument(1): 3
+call: 230: 222
+  230: alternative: no
+  230: has_alternatives: false
+  230: goal: stop_trace(user)
+  230: predicate_indicator: stop_trace/1
+  230: clause: no
+  230: level: 7
+  230: parent: 131
+  230: context_module: user
+  230: top: false
+  230: hidden: false
+  230: pc: 17
+  230: argument(1): user
