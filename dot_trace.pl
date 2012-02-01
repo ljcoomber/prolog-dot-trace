@@ -49,12 +49,10 @@ prolog_trace_interception(exit, Frame, _Choice, continue):-
 prolog_trace_interception(_Port, _Frame, _PC, continue).
 
 
-% TODO: Need separator in reference to stop clashes
-% TODO: Check Prolog-y nature of names
 reference_gen(Frame, Reference) :-
     prolog_frame_attribute(Frame, level, Level),    
     prolog_frame_attribute(Frame, pc, PC),
-    atom_concat(Level, PC, Reference).
+    atomic_list_concat([f, Frame, l, Level, p, PC], Reference).
 
 reference_parent_gen(Frame, Reference) :-
     prolog_frame_attribute(Frame, parent, Parent),
