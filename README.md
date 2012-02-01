@@ -2,4 +2,4 @@ Debugger hooks to generate a DOT representation of a SWI-Prolog program executio
 
 Example output of early version:
 
-![Factorial Example](https://github.com/ljcoomber/prolog-dot-trace/raw/master/example/factorial.png "Factorial Example")
+![Factorial Example](https://github.com/ljcoomber/prolog-dot-trace/raw/master/examples/factorial.png "Factorial Example")
