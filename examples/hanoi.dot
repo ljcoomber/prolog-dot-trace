@@ -1,0 +1,66 @@
+digraph prologTrace {
+    418 [label="move(3,left,right,center)"];
+    341 -> 418;
+    56 [label="system: (3>1)"];
+    418 -> 56;
+    510 [label="system: (_G27 is 3+ -1)"];
+    418 -> 510;
+    518 [label="move(2,left,center,right)"];
+    418 -> 518;
+    66 [label="system: (2>1)"];
+    518 -> 66;
+    610 [label="system: (_G30 is 2+ -1)"];
+    518 -> 610;
+    618 [label="move(1,left,right,center)"];
+    518 -> 618;
+    715 [label="system:format('//Move top disk from ~w to ~w~n',[left,right])"];
+    618 -> 715;
+//Move top disk from left to right
+    618 -> 518 [label="Exit: move(1,left,right,center)"];
+    625 [label="move(1,left,center,_G36)"];
+    518 -> 625;
+    715 [label="system:format('//Move top disk from ~w to ~w~n',[left,center])"];
+    625 -> 715;
+//Move top disk from left to center
+    625 -> 518 [label="Exit: move(1,left,center,_G42)"];
+    633 [label="move(1,right,center,left)"];
+    518 -> 633;
+    715 [label="system:format('//Move top disk from ~w to ~w~n',[right,center])"];
+    633 -> 715;
+//Move top disk from right to center
+    633 -> 518 [label="Exit: move(1,right,center,left)"];
+    518 -> 418 [label="Exit: move(2,left,center,right)"];
+    525 [label="move(1,left,right,_G48)"];
+    418 -> 525;
+    615 [label="system:format('//Move top disk from ~w to ~w~n',[left,right])"];
+    525 -> 615;
+//Move top disk from left to right
+    525 -> 418 [label="Exit: move(1,left,right,_G54)"];
+    533 [label="move(2,center,right,left)"];
+    418 -> 533;
+    66 [label="system: (2>1)"];
+    533 -> 66;
+    610 [label="system: (_G57 is 2+ -1)"];
+    533 -> 610;
+    618 [label="move(1,center,left,right)"];
+    533 -> 618;
+    715 [label="system:format('//Move top disk from ~w to ~w~n',[center,left])"];
+    618 -> 715;
+//Move top disk from center to left
+    618 -> 533 [label="Exit: move(1,center,left,right)"];
+    625 [label="move(1,center,right,_G63)"];
+    533 -> 625;
+    715 [label="system:format('//Move top disk from ~w to ~w~n',[center,right])"];
+    625 -> 715;
+//Move top disk from center to right
+    625 -> 533 [label="Exit: move(1,center,right,_G69)"];
+    633 [label="move(1,left,right,center)"];
+    533 -> 633;
+    715 [label="system:format('//Move top disk from ~w to ~w~n',[left,right])"];
+    633 -> 715;
+//Move top disk from left to right
+    633 -> 533 [label="Exit: move(1,left,right,center)"];
+    533 -> 418 [label="Exit: move(2,center,right,left)"];
+    418 -> 341 [label="Exit: move(3,left,right,center)"];
+    341 [label="Start"];
+}
