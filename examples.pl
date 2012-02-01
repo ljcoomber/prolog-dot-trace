@@ -8,8 +8,8 @@ factorial(N, A, R) :-
     N1 is N - 1, 
     factorial(N1, A1, R).
 
-test :-
-    dot_trace:start_trace('example/factorial.dot', OldStr),
+generate_factorial :-
+    dot_trace:start_trace('examples/factorial.dot', OldStr),
     factorial(3, 1, _),
     dot_trace:stop_trace(OldStr).
 
