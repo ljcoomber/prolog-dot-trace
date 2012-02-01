@@ -16,13 +16,15 @@ stop_trace(OldStr):-
     told,
     tell(OldStr).
 
-% Do not display calls to stop_trace, and rename caller to 'start'
 prolog_trace_interception(call, Frame, _Choice, continue):-
+    % Do not display calls to stop_trace, but use the call to get a reference to
+    % the start node, and rename it
     prolog_frame_attribute(Frame, predicate_indicator, dot_trace:stop_trace/1),
     reference_parent_gen(Frame, ParentReference),
     format('    ~w [label="Start"];~n', [ParentReference]).
 
 prolog_trace_interception(exit, Frame, _Choice, continue) :-
+    % Do not display exit from start_trace
     prolog_frame_attribute(Frame, predicate_indicator, dot_trace:start_trace/2).
 
 prolog_trace_interception(call, Frame, _Choice, continue):-
@@ -43,7 +45,6 @@ prolog_trace_interception(exit, Frame, _Choice, continue):-
     reference_parent_gen(Frame, ParentReference),
     format('    ~w -> ~w [label="Exit: ~w"];~n', [Reference, ParentReference, Goal]).
 
-
 prolog_trace_interception(_Port, _Frame, _PC, continue).
 
 % TODO: Need separator in reference to stop clashes
@@ -56,29 +57,3 @@ reference_gen(Frame, Reference) :-
 reference_parent_gen(Frame, Reference) :-
     prolog_frame_attribute(Frame, parent, Parent),
     reference_gen(Parent, Reference).
-
-
-/*
-
-dump_frame_attribute(Frame, Key):-
-    (prolog_frame_attribute(Frame, Key, Value) ; Value=no),
-    format('  ~w: ~w: ~w~n', [Frame, Key, Value]).
-
-prolog_trace_interception(Port, Frame, Choice, continue) :-
-    format('~w: ~w: ~w~n', [Port, Frame, Choice]),
-    dump_frame_attribute(Frame, alternative),
-    dump_frame_attribute(Frame, has_alternatives),
-    dump_frame_attribute(Frame, goal),
-    %dump_frame_attribute(Frame, parent_goal),
-    dump_frame_attribute(Frame, predicate_indicator),
-    dump_frame_attribute(Frame, clause),
-    dump_frame_attribute(Frame, level),
-    dump_frame_attribute(Frame, parent),
-    dump_frame_attribute(Frame, context_module),
-    dump_frame_attribute(Frame, top),
-    dump_frame_attribute(Frame, hidden),
-    %dump_frame_attribute(Frame, skipped),
-    dump_frame_attribute(Frame, pc),
-    dump_frame_attribute(Frame, argument(1)).
- */
-
