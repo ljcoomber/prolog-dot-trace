@@ -16,16 +16,13 @@ stop_trace(OldStr):-
     told,
     tell(OldStr).
 
+
 prolog_trace_interception(call, Frame, _Choice, continue):-
     % Do not display calls to stop_trace, but use the call to get a reference to
     % the start node, and rename it
     prolog_frame_attribute(Frame, predicate_indicator, dot_trace:stop_trace/1),
     reference_parent_gen(Frame, ParentReference),
     format('    ~w [label="Start"];~n', [ParentReference]).
-
-prolog_trace_interception(exit, Frame, _Choice, continue) :-
-    % Do not display exit from start_trace
-    prolog_frame_attribute(Frame, predicate_indicator, dot_trace:start_trace/2).
 
 prolog_trace_interception(call, Frame, _Choice, continue):-
     reference_gen(Frame, Reference),
@@ -38,6 +35,10 @@ prolog_trace_interception(call, Frame, _Choice, continue):-
     reference_parent_gen(Frame, ParentReference),
     format('    ~w -> ~w;~n', [ParentReference, Reference]).
 
+prolog_trace_interception(exit, Frame, _Choice, continue) :-
+    % Do not display exit from start_trace
+    prolog_frame_attribute(Frame, predicate_indicator, dot_trace:start_trace/2).
+
 prolog_trace_interception(exit, Frame, _Choice, continue):-
     prolog_frame_attribute(Frame, clause, _),
     prolog_frame_attribute(Frame, goal, Goal),
@@ -46,6 +47,7 @@ prolog_trace_interception(exit, Frame, _Choice, continue):-
     format('    ~w -> ~w [label="Exit: ~w"];~n', [Reference, ParentReference, Goal]).
 
 prolog_trace_interception(_Port, _Frame, _PC, continue).
+
 
 % TODO: Need separator in reference to stop clashes
 % TODO: Check Prolog-y nature of names
