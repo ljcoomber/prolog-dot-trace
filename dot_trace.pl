@@ -1,7 +1,5 @@
 :- module(dot_trace, [start_trace/2, stop_trace/1, prolog_trace_interception/4]).
 
-% TODO: Module name
-% TODO: Modularise
 % TODO: How to document predicates
 % TODO: Tests
 % TODO: Cuts, redos / alternatives
