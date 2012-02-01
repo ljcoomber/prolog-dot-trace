@@ -1,3 +1,5 @@
+:- module(dot_trace, [start_trace/2, stop_trace/1, prolog_trace_interception/4]).
+
 % TODO: Module name
 % TODO: Modularise
 % TODO: How to document predicates
@@ -18,12 +20,12 @@ stop_trace(OldStr):-
 
 % Do not display calls to stop_trace, and rename caller to 'start'
 prolog_trace_interception(call, Frame, _Choice, continue):-
-    prolog_frame_attribute(Frame, predicate_indicator, stop_trace/1),
+    prolog_frame_attribute(Frame, predicate_indicator, dot_trace:stop_trace/1),
     reference_parent_gen(Frame, ParentReference),
     format('    ~w [label="Start"];~n', [ParentReference]).
 
 prolog_trace_interception(exit, Frame, _Choice, continue) :-
-    prolog_frame_attribute(Frame, predicate_indicator, start_trace/2).
+    prolog_frame_attribute(Frame, predicate_indicator, dot_trace:start_trace/2).
 
 prolog_trace_interception(call, Frame, _Choice, continue):-
     reference_gen(Frame, Reference),
@@ -57,20 +59,6 @@ reference_parent_gen(Frame, Reference) :-
     prolog_frame_attribute(Frame, parent, Parent),
     reference_gen(Parent, Reference).
 
-
-% Begin example code %
-factorial(0, R, R). 
-
-factorial(N, A, R) :-  
-    N > 0, 
-    A1 is N * A, 
-    N1 is N - 1, 
-    factorial(N1, A1, R).
-
-test :-
-    start_trace('test-out.dot', OldStr),
-    factorial(3, 1, _),
-    stop_trace(OldStr).
 
 /*
 
