@@ -33,7 +33,8 @@ prolog_trace_interception(call, Frame, _Choice, continue):-
                                         portray(true) ]]),
     
     generate_parent_node_ref(Frame, ParentReference),
-    format('    "~w" -> "~w";~n', [ParentReference, Reference]).
+	flag(node_id, N, N + 1),
+    format('    "~w" -> "~w" [label="~w"];~n', [ParentReference, Reference, N]).
 
 prolog_trace_interception(exit, Frame, _Choice, continue) :-
     % Do not display exit from start_trace
@@ -44,7 +45,8 @@ prolog_trace_interception(exit, Frame, _Choice, continue):-
     prolog_frame_attribute(Frame, goal, Goal),
     generate_node_ref(Frame, Reference),
     generate_parent_node_ref(Frame, ParentReference),
-    format('    "~w" -> "~w" [label="Exit: ~w"];~n', [Reference, ParentReference, Goal]).
+	flag(node_id, N, N + 1),        
+    format('    "~w" -> "~w" [label="~w  Exit: ~w"];~n', [Reference, ParentReference, N, Goal]).
 
 prolog_trace_interception(fail, Frame, _Choice, continue):-
     format('// fail Frame: ~w~n', Frame).
