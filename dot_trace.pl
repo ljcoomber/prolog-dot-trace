@@ -1,9 +1,11 @@
 :- module(dot_trace, [start_trace/2, stop_trace/1, prolog_trace_interception/4]).
 
-% TODO: How to document predicates
 % TODO: Tests
 % TODO: Cuts, redos / alternatives
 % TODO: Put start node at top
+% TODO: Trace with explicit call, use $visible as per tests to determine setting
+% TODO: Use named stream
+% TODO: Remove system: module from node labels
 start_trace(DstFile, OldStr) :-
     telling(OldStr),
     tell(DstFile),
