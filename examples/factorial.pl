@@ -9,6 +9,4 @@ factorial(N, A, R) :-
     factorial(N1, A1, R).
 
 generate :-
-    dot_trace:start_trace('examples/factorial.dot', OldStr),
-    factorial(3, 1, _),
-    dot_trace:stop_trace(OldStr).
+    dot_trace:dot_trace_file('examples/factorial.dot', factorial(3, 1, _)).

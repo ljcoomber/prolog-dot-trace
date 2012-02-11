@@ -14,8 +14,6 @@ move(N, X, Y, Z) :-
     move(M, Z, Y, X).  
 
 generate :-
-    dot_trace:start_trace('examples/hanoi.dot', OldStr),
-    move(3,left,right,center),
-    dot_trace:stop_trace(OldStr).
-
+    dot_trace:dot_trace_file('examples/hanoi.dot',
+                             move(3,left,right,center)).
 
