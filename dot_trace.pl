@@ -14,18 +14,16 @@ dot_trace_file(DstFile, Goal) :-
 dot_trace_stream(Stream, Goal) :-
     recorda(trace_stream, Stream, Ref),
     print(Stream, 'digraph prologTrace {'), nl(Stream),
+
+    prolog_current_frame(Frame),
+    generate_node_ref(Frame, NodeRef),
+    format(Stream, '    "~w" [label="Start"];~n', [NodeRef]),
+
     trace,
     call(Goal),
     notrace,
     print(Stream, '}'), nl(Stream),
     erase(Ref).
-
-prolog_trace_interception(call, Frame, _Choice, continue):-
-    % Do not display calls to stop_trace, but use the call to get a reference to
-    % the start node, and rename it
-    prolog_frame_attribute(Frame, predicate_indicator, dot_trace:stop_trace/1),
-    generate_parent_node_ref(Frame, ParentReference),
-    format('    "~w" [label="Start"];~n', [ParentReference]).
 
 prolog_trace_interception(call, Frame, _Choice, continue):-
     generate_node_ref(Frame, Reference),
@@ -40,11 +38,6 @@ prolog_trace_interception(call, Frame, _Choice, continue):-
 	flag(node_id, N, N + 1),
     format(Stream, '    "~w" -> "~w" [label="~w"];~n',
            [ParentReference, Reference, N]).
-
-prolog_trace_interception(exit, Frame, _Choice, continue) :-
-    % Do not display exit from start_trace
-    % TODO: Still needed?
-    prolog_frame_attribute(Frame, predicate_indicator, dot_trace:start_trace/2).
 
 prolog_trace_interception(exit, Frame, _Choice, continue):-
     prolog_frame_attribute(Frame, clause, _),
