@@ -2,7 +2,6 @@
 
 % TODO: Tests
 % TODO: Cuts, redos / alternatives
-% TODO: Use named stream
 % TODO: Remove system: module from node labels
 
 dot_trace_file(DstFile, Goal) :-
