@@ -2,7 +2,6 @@
 
 % TODO: Tests
 % TODO: Cuts, redos / alternatives
-% TODO: Put start node at top
 % TODO: Use named stream
 % TODO: Remove system: module from node labels
 
