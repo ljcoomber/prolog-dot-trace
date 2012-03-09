@@ -5,7 +5,9 @@ PROLOG=swipl
 test: tmp/p_simple.png tmp/p_backtrack.png
 
 clean:
-	rm -r tmp/*
+	rm -rf examples/*dot
+	rm -rf examples/*png
+	rm -rf tmp/*
 
 examples: examples/factorial.png examples/hanoi.png
 

@@ -1,2 +1,4 @@
 *~
+examples/*.dot
+examples/*.png
 tmp/
