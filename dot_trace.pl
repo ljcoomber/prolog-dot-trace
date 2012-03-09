@@ -10,6 +10,10 @@ dot_trace_file(DstFile, Goal) :-
 
 % TODO: Turn off notrace if Goal fails
 dot_trace_stream(Stream, Goal) :-
+    % Dummy predicate to stop later lookups failing when there are no unbound
+    % vars in the program execution
+    asserta(dot_trace:varbound(a, a, a)),
+    
     recorda(trace_stream, Stream, Ref),
     
     print(Stream, 'digraph prologTrace {'), nl(Stream),
@@ -87,11 +91,11 @@ step(exit, Frame, Choice, N, _Goal, Stream):-
     % TODO: Support multiple args
     prolog_frame_attribute(Frame, level, Level),    
 
-    (  dot_dcg:varbound(Level, Idx, Arg)
+    (  dot_trace:varbound(Level, Idx, Arg)
     -> prolog_frame_attribute(Frame, argument(Idx), Val),
        format(Stream, '    "~w" -> "~w" [label="~w ~w=~W"];~n',
               [Reference, ParentReference, N, Arg, Val, [portray(true)]]),
-       retract(dot_dcg:varbound(Level, Idx, Arg))
+       retract(dot_trace:varbound(Level, Idx, Arg))
     ;  format(Stream, '    "~w" -> "~w" [label="~w"];~n',
               [Reference, ParentReference, N])
     ).
@@ -134,4 +138,4 @@ assert_ungrounded_arg(Idx, Frame) :-
     term_to_atom(Arg, Str),
     
     % TODO: Clean-up database assertions before and after    
-    asserta(dot_dcg:varbound(Level, Idx, Str)) ; true.
+    asserta(dot_trace:varbound(Level, Idx, Str)) ; true.
