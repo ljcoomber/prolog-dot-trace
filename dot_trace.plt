@@ -10,6 +10,7 @@
 test(p_simple) :-
     % Stricter testing is not possible with ungrounded vars 
     do_trace(p_simple, Statements),
+    
     find_node(Start, '"Start"', Statements),
     find_node(PSimple, '"p_simple"', Statements),
     find_node(IsList, '"system:is_list([97,98,99,100])"', Statements),
@@ -19,11 +20,26 @@ test(p_simple) :-
     find_edge(App1, App2, '"2"', Statements),
     find_edge(App2, _, '"3"', Statements),
     find_edge(App1, PSimple, _, Statements),
-    find_edge(PSimple, IsList, '"7"', Statements).
+    find_edge(PSimple, IsList, '"7"', Statements),
+    find_edge(IsList, PSimple, '"8"', Statements),
+    find_edge(PSimple, Start, '"9"', Statements).
 
-%test(p_backtrack, blocked(todo)) :-
-%    do_trace(p_backtrack, _Statements).
+test(p_backtrack, [nondet]) :-
+    do_trace(p_backtrack, Statements),
     
+    find_node(Start, '"Start"', Statements),
+    find_node(PBacktrack, '"p_backtrack"', Statements),
+
+    find_edge(Start, PBacktrack, '"1"', Statements),
+    find_edge(PBacktrack, App1, '"2"', Statements),
+    find_edge(PBacktrack, App1, '"6"', Statements),
+
+    find_edge(U1, U2, '"4"', Statements),
+    find_edge(U2, U1, '"5"', Statements),
+
+    find_edge(U3, U4, '"10"', Statements),
+    find_edge(U4, U3, '"11"', Statements).
+
 %test(p_cut, blocked(todo)) :-
 %    do_trace(p_cut, _Statements).
     
@@ -47,7 +63,8 @@ do_trace(Pred, Statements) :-
     dot_dcg:graph(digraph(_, Statements), Result, []).
 
 find_edge(Start, End, Label, Statements) :-
-    member(edge([Start, End], [attr(label,Label)]), Statements), !.
+    member(edge([Start, End], Attrs), Statements),
+    member(attr(label,Label), Attrs), !.
     
 find_node(Id, Label, Statements) :-
     member(node_stmt(Id, [attr(label,Label)]), Statements), !.

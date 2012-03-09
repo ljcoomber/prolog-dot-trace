@@ -1,10 +1,8 @@
 :- module(dot_trace, [dot_trace_file/2, dot_trace_stream/2, prolog_trace_interception/4]).
 
 % TODO: Support portray_text, and find a way to escape quotes
-% TODO: Tests
 % TODO: Cuts, redos / alternatives
 % TODO: Remove system: module from node labels
-
 dot_trace_file(DstFile, Goal) :-
     setup_call_cleanup(open(DstFile, write, Fd),
                        dot_trace_stream(Fd, Goal),
@@ -13,6 +11,7 @@ dot_trace_file(DstFile, Goal) :-
 % TODO: Turn off notrace if Goal fails
 dot_trace_stream(Stream, Goal) :-
     recorda(trace_stream, Stream, Ref),
+    
     print(Stream, 'digraph prologTrace {'), nl(Stream),
 
     prolog_current_frame(Frame),
@@ -23,43 +22,88 @@ dot_trace_stream(Stream, Goal) :-
     call(Goal),
     notrace,
     print(Stream, '}'), nl(Stream),
-    erase(Ref).
 
-prolog_trace_interception(call, Frame, _Choice, continue):-
-    generate_node_ref(Frame, Reference),
+    % Clean-up
+    erase(Ref),
+    flag(node_id, _, 1).
+
+/*
+prolog_trace_interception(Port, Frame, Choice, continue):-
+    % Used for debugging
+    format('Trace: Port: ~w Frame: ~w, PC: ~w~n', [Port, Frame, PC]),
+    prolog_frame_attribute(Frame, goal, Goal),
+    format('    Goal: ~w~n', [Goal]),
+    prolog_choice_attribute(Choice, parent, Parent),
+    prolog_choice_attribute(Choice, frame, Frame),
+    prolog_choice_attribute(Choice, type, Type),
+    format('    Choice: ~w, ~w, ~w~n', [Parent, Frame, Type]).
+*/
+
+prolog_trace_interception(Port, Frame, Choice, continue):-
+    step(Port, Frame, Choice).
+
+step(Port, Frame, Choice):-
+	flag(node_id, N, N + 1),    
     prolog_frame_attribute(Frame, goal, Goal),
     recorded(trace_stream, Stream),
+    track_ungrounded_args(1, Frame),    
+    step(Port, Frame, Choice, N, Goal, Stream).
+
+step(call, Frame, _Choice, N, Goal, Stream):-    
+    generate_node_ref(Frame, Reference),
+    generate_parent_node_ref(Frame, ParentReference),
+    
     format(Stream, '    "~w" [label="~W"];~n', [Reference, Goal,
                                                 [ portray(true),
                                                   quoted(true) ]]),
-    track_ungrounded_args(1, Frame),
-    generate_parent_node_ref(Frame, ParentReference),
-	flag(node_id, N, N + 1),
     format(Stream, '    "~w" -> "~w" [label="~w"];~n',
            [ParentReference, Reference, N]).
 
-prolog_trace_interception(exit, Frame, _Choice, continue):-
-    prolog_frame_attribute(Frame, clause, _),
+step(redo, Frame, _Choice, N, Goal, Stream):-    
     generate_node_ref(Frame, Reference),
     generate_parent_node_ref(Frame, ParentReference),
-	flag(node_id, N, N + 1),
-    recorded(trace_stream, Stream),
+    
+    format(Stream, '    "~w" [label="~W"];~n', [Reference, Goal,
+                                                [ portray(true),
+                                                  quoted(true) ]]),
+    format(Stream, '    "~w" -> "~w" [label="~w",style="dashed"];~n',
+           [ParentReference, Reference, N]).
+
+step(exit, Frame, Choice, N, _Goal, Stream):-
+    generate_node_ref(Frame, Reference),
+    generate_parent_node_ref(Frame, ParentReference),
+
+    (  prolog_choice_attribute(Choice, frame, Frame)
+    -> prolog_choice_attribute(Choice, type, Type),
+       generate_node_ref(Frame, ChoiceFrameRef),
+
+       format(Stream, '    "~w" [label="~w"];~n',
+              [Choice, Type]),
+       format(Stream, '    "~w" -> "~w" [color="green"];~n',
+              [Choice, ChoiceFrameRef])
+    ; true
+    ),
 
     % TODO: Support multiple args
     prolog_frame_attribute(Frame, level, Level),    
-    dot_dcg:varbound(Level, Idx, Arg),
-    prolog_frame_attribute(Frame, argument(Idx), Val),
 
-    format(Stream, '    "~w" -> "~w" [label="~w ~w=~W"];~n',
-           [Reference, ParentReference, N, Arg, Val, [portray(true)]]).
-    
-prolog_trace_interception(fail, Frame, _Choice, continue):-
-    format('// fail Frame: ~w~n', Frame).
+    (  dot_dcg:varbound(Level, Idx, Arg)
+    -> prolog_frame_attribute(Frame, argument(Idx), Val),
+       format(Stream, '    "~w" -> "~w" [label="~w ~w=~W"];~n',
+              [Reference, ParentReference, N, Arg, Val, [portray(true)]]),
+       retract(dot_dcg:varbound(Level, Idx, Arg))
+    ;  format(Stream, '    "~w" -> "~w" [label="~w"];~n',
+              [Reference, ParentReference, N])
+    ).
 
-prolog_trace_interception(redo, Frame, _Choice, continue):-
-    format('// redo Frame: ~w~n', Frame).
+step(fail, Frame, _Choice, N, _Goal, Stream):-
+    generate_node_ref(Frame, Reference),
+    generate_parent_node_ref(Frame, ParentReference),
+    format(Stream, '    "~w" -> "~w" [label="~w",color="red"];~n',
+           [Reference, ParentReference, N]).
 
-prolog_trace_interception(_Port, _Frame, _PC, continue).
+step(Port, Frame, _Choice, N, Goal, _Stream):-
+    format('// XXX Catch-all  ~w Frame: ~w: N: ~w Goal: ~w~n', [Port, Frame, N, Goal]).
 
 generate_node_ref(Frame, Reference) :-
     % I could not tell from a quick look of the SWI-Prolog source code what a
