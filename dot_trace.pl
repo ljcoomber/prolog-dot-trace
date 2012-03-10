@@ -81,7 +81,7 @@ step(exit, Frame, Choice, N, _Goal, Stream):-
     -> prolog_choice_attribute(Choice, type, Type),
        generate_node_ref(Frame, ChoiceFrameRef),
 
-       format(Stream, '    "~w" [label="~w"];~n',
+       format(Stream, '    "~w" [label="~w", color="green"];~n',
               [Choice, Type]),
        format(Stream, '    "~w" -> "~w" [color="green"];~n',
               [Choice, ChoiceFrameRef])
