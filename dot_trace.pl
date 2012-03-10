@@ -77,14 +77,26 @@ step(exit, Frame, Choice, N, _Goal, Stream):-
     generate_node_ref(Frame, Reference),
     generate_parent_node_ref(Frame, ParentReference),
 
-    (  prolog_choice_attribute(Choice, frame, Frame)
-    -> prolog_choice_attribute(Choice, type, Type),
-       generate_node_ref(Frame, ChoiceFrameRef),
+    (  prolog_choice_attribute(Choice, frame, Frame),
+       prolog_choice_attribute(Choice, type, Type),
+       \+Type = catch
+    -> generate_node_ref(Frame, ChoiceFrameRef),
 
-       format(Stream, '    "~w" [label="~w", color="green"];~n',
-              [Choice, Type]),
-       format(Stream, '    "~w" -> "~w" [color="green"];~n',
-              [Choice, ChoiceFrameRef])
+       prolog_choice_attribute(Choice, parent, ChoiceParent),
+       prolog_choice_attribute(ChoiceParent, frame, ChoiceParentFrame),
+       
+       generate_node_ref(ChoiceParentFrame, ChoiceParentRef),
+
+       prolog_frame_attribute(Frame, alternative, AltFrame),
+       generate_node_ref(AltFrame, AltFrameRef),
+       prolog_frame_attribute(Frame, goal, AltGoal),
+
+       format(Stream, '    "~w" [label="~w", color="blue"];~n',
+              [AltFrameRef, AltGoal]),
+       
+       format(Stream,
+              '    "~w" -> "~w" [label="~w (~w)",style="dashed",color="blue"];~n',
+              [ChoiceFrameRef, AltFrameRef, Type, N])
     ; true
     ),
 
