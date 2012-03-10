@@ -133,9 +133,10 @@ track_ungrounded_args(Idx, Frame) :-
 
 assert_ungrounded_arg(Idx, Frame) :-
     prolog_frame_attribute(Frame, argument(Idx), Arg),
-    \+ground(Arg) ->
-    prolog_frame_attribute(Frame, level, Level),
-    term_to_atom(Arg, Str),
-    
-    % TODO: Clean-up database assertions before and after    
-    asserta(dot_trace:varbound(Level, Idx, Str)) ; true.
+    (  \+ground(Arg)
+    -> prolog_frame_attribute(Frame, level, Level),
+       term_to_atom(Arg, Str),
+       % TODO: Clean-up database assertions before and after    
+       asserta(dot_trace:varbound(Level, Idx, Str))
+    ;  true
+    ).
