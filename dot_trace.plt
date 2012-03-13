@@ -5,12 +5,16 @@
 :- use_module(dot_trace).
 :- use_module('lib/dot-dcg/dot_dcg').
 
+% Must use modified portray_text module so that quotes are escaped
+:- use_module('lib/swi-prolog/portray_escaped_text').
+:- set_portray_text(min_length, 1).
+
 :- begin_tests(dot_trace).
 
 test(p_simple) :-
     % Stricter testing is not possible with ungrounded vars 
-    do_trace(p_simple, Statements),
-    
+    do_trace(p_simple, _Statements),
+
     find_node(Start, '"Start"', Statements),
     find_node(PSimple, '"p_simple"', Statements),
     find_node(IsList, '"system:is_list([97,98,99,100])"', Statements),
@@ -24,9 +28,9 @@ test(p_simple) :-
     find_edge(IsList, PSimple, '"8"', Statements),
     find_edge(PSimple, Start, '"9"', Statements).
 
-test(p_backtrack, [nondet]) :-
-    do_trace(p_backtrack, Statements),
-    
+test(p_backtrack, [nondet]) :-   
+    do_trace(p_backtrack, _Statements),
+
     find_node(Start, '"Start"', Statements),
     find_node(PBacktrack, '"p_backtrack"', Statements),
 
@@ -40,7 +44,7 @@ test(p_backtrack, [nondet]) :-
     find_edge(U3, U4, '"10"', Statements),
     find_edge(U4, U3, '"11"', Statements).
 
-%test(p_cut, blocked(todo)) :-
+%test(p_cut) :-
 %    do_trace(p_cut, _Statements).
     
 %test(p_ifthen, blocked(todo)) :-
