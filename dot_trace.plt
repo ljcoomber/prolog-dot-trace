@@ -59,12 +59,14 @@ do_trace(Pred, Statements) :-
     atomic_list_concat(['tmp/', Pred, '.dot'], File),
 
     setup_call_cleanup(open(File, write, WStream),
-                       (dot_trace:dot_trace_stream(WStream, Pred),
-                        setup_call_cleanup(open(File, read, RStream),
-                                           (read_stream_to_codes(RStream, Result),
-                                            dot_dcg:graph(digraph(_, Statements), Result, [])),
-                                           close(RStream))),
-                       close(WStream)).
+                       dot_trace:dot_trace_stream(WStream, Pred),
+                       close(WStream)),
+
+    setup_call_cleanup(open(File, read, RStream),
+                       (read_stream_to_codes(RStream, Result),
+                        dot_dcg:graph(digraph(_, Statements), Result, [])),
+                       close(RStream)).
+
 
 find_edge(Start, End, Label, Statements) :-
     member(edge([Start, End], Attrs), Statements),
