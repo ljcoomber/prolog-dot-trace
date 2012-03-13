@@ -19,10 +19,12 @@ dot_trace_stream(Stream, Goal) :-
     print(Stream, 'digraph prologTrace {'), nl(Stream),
 
     prolog_current_frame(Frame),
-    generate_node_ref(Frame, NodeRef),
+
+    generate_node_ref(Frame, 0, NodeRef),
     format(Stream, '    "~w" [label="Start"];~n', [NodeRef]),
 
     trace,
+    %visible(+all), visible(+cut),
     call(Goal),
     notrace,
     print(Stream, '}'), nl(Stream),
@@ -50,45 +52,98 @@ step(Port, Frame, Choice):-
 	flag(node_id, N, N + 1),    
     prolog_frame_attribute(Frame, goal, Goal),
     recorded(trace_stream, Stream),
-    track_ungrounded_args(1, Frame),    
+    track_ungrounded_args(1, Frame),
+
+    atomic_list_concat([f, Frame], FrameRef),
+    atomic_list_concat([f, Frame, p, Port, c, Choice], PortRef),
+
+    prolog_frame_attribute(Frame, parent, ParentFrame),    
+
+    atomic_list_concat([f, ParentFrame], ParentFrameRef),
+
+    prolog_frame_attribute(Frame, predicate_indicator, Pred),
+    
+    format(Stream, '    "~w" [shape="box",label="~w"];~n',
+           [FrameRef, Pred]),
+
     step(Port, Frame, Choice, N, Goal, Stream).
 
-step(call, Frame, _Choice, N, Goal, Stream):-    
-    generate_node_ref(Frame, Reference),
-    generate_parent_node_ref(Frame, ParentReference),
-    
-    format(Stream, '    "~w" [label="~W"];~n', [Reference, Goal,
-                                                [ portray(true),
-                                                  quoted(true) ]]),
-    format(Stream, '    "~w" -> "~w" [label="~w"];~n',
-           [ParentReference, Reference, N]).
+step(call, Frame, Choice, N, Goal, Stream):-
+    atomic_list_concat([f, Frame], FrameRef),
+    atomic_list_concat([f, Frame, p, call, c, Choice], PortRef),
 
-step(redo, Frame, _Choice, N, Goal, Stream):-    
-    generate_node_ref(Frame, Reference),
-    generate_parent_node_ref(Frame, ParentReference),
-    
-    format(Stream, '    "~w" [label="~W"];~n', [Reference, Goal,
-                                                [ portray(true),
-                                                  quoted(true) ]]),
-    format(Stream, '    "~w" -> "~w" [label="~w",style="dashed"];~n',
-           [ParentReference, Reference, N]).
+    prolog_frame_attribute(Frame, parent, ParentFrame),    
 
-step(exit, Frame, Choice, N, _Goal, Stream):-
-    generate_node_ref(Frame, Reference),
-    generate_parent_node_ref(Frame, ParentReference),
+    atomic_list_concat([f, ParentFrame], ParentFrameRef),
+    
+    format(Stream, '    "~w" -> "~w" [label="~w: ~W"];~n',
+           [ParentFrameRef, FrameRef, N, Goal, [portray(true), quoted(true)]]).
+
+step(redo, Frame, Choice, N, Goal, Stream):-
+    atomic_list_concat([f, Frame], FrameRef),
+    atomic_list_concat([f, Frame, p, redo, c, Choice], PortRef),
+
+    prolog_frame_attribute(Frame, parent, ParentFrame),    
+
+    atomic_list_concat([f, ParentFrame], ParentFrameRef),
+    
+    format(Stream, '    "~w" -> "~w" [label="~w: ~W", style="dashed"];~n',
+           [ParentFrameRef, FrameRef, N, Goal, [portray(true), quoted(true)]]).
+
+step(exit, Frame, Choice, N, Goal, Stream):-
+    atomic_list_concat([f, Frame], FrameRef),
+
+    prolog_frame_attribute(Frame, parent, ParentFrame),    
+    atomic_list_concat([f, ParentFrame], ParentFrameRef),
+
+    % TODO: Support multiple args
+    prolog_frame_attribute(Frame, level, Level),    
+
+    
+    (  dot_trace:varbound(Level, Idx, Arg)
+    -> prolog_frame_attribute(Frame, argument(Idx), Val),
+       format(Stream, '    "~w" -> "~w" [label="~w ~w=~W"];~n',
+              [FrameRef, ParentFrameRef, N, Arg, Val, [portray(true), quoted(true)]]),
+       retract(dot_trace:varbound(Level, Idx, Arg))
+    ;  format(Stream, '    "~w" -> "~w" [label="~w"];~n',
+              [FrameRef, ParentFrameRef, N])
+    ),
+    true.
+
+    
+
+    
+    %format(Stream, '    "~w" -> "~w" [label="~w: ~w"];~n',
+    %       [FrameRef, ParentFrameRef, N, Goal]).
+
+step(fail, Frame, Choice, N, _Goal, Stream):-
+    atomic_list_concat([f, Frame], FrameRef),
+    atomic_list_concat([f, Frame, p, exit, c, Choice], PortRef),
+
+    prolog_frame_attribute(Frame, parent, ParentFrame),    
+
+    atomic_list_concat([f, ParentFrame], ParentFrameRef),
+
+    format(Stream, '    "~w" -> "~w" [label="~w", color="red"];~n',
+           [FrameRef, ParentFrameRef, N]).
+
+
+/*
+  generate_node_ref(Frame, Choice, Reference),
+    generate_parent_node_ref(Frame, Choice, ParentReference),
 
     (  prolog_choice_attribute(Choice, frame, Frame),
        prolog_choice_attribute(Choice, type, Type),
        \+Type = catch
-    -> generate_node_ref(Frame, ChoiceFrameRef),
+    -> generate_node_ref(Frame, Choice, ChoiceFrameRef),
 
        prolog_choice_attribute(Choice, parent, ChoiceParent),
        prolog_choice_attribute(ChoiceParent, frame, ChoiceParentFrame),
        
-       generate_node_ref(ChoiceParentFrame, ChoiceParentRef),
+       generate_node_ref(ChoiceParentFrame, Choice, ChoiceParentRef),
 
        prolog_frame_attribute(Frame, alternative, AltFrame),
-       generate_node_ref(AltFrame, AltFrameRef),
+       generate_node_ref(AltFrame, Choice, AltFrameRef),
        prolog_frame_attribute(Frame, goal, AltGoal),
 
        format(Stream, '    "~w" [label="~w", color="blue"];~n',
@@ -100,37 +155,23 @@ step(exit, Frame, Choice, N, _Goal, Stream):-
     ; true
     ),
 
-    % TODO: Support multiple args
-    prolog_frame_attribute(Frame, level, Level),    
-
-    (  dot_trace:varbound(Level, Idx, Arg)
-    -> prolog_frame_attribute(Frame, argument(Idx), Val),
-       format(Stream, '    "~w" -> "~w" [label="~w ~w=~W"];~n',
-              [Reference, ParentReference, N, Arg, Val, [portray(true)]]),
-       retract(dot_trace:varbound(Level, Idx, Arg))
-    ;  format(Stream, '    "~w" -> "~w" [label="~w"];~n',
-              [Reference, ParentReference, N])
-    ).
-
-step(fail, Frame, _Choice, N, _Goal, Stream):-
-    generate_node_ref(Frame, Reference),
-    generate_parent_node_ref(Frame, ParentReference),
-    format(Stream, '    "~w" -> "~w" [label="~w",color="red"];~n',
-           [Reference, ParentReference, N]).
-
-step(Port, Frame, _Choice, N, Goal, _Stream):-
-    format('// XXX Catch-all  ~w Frame: ~w: N: ~w Goal: ~w~n', [Port, Frame, N, Goal]).
-
-generate_node_ref(Frame, Reference) :-
+*/
+    
+step(Port, Frame, Choice, N, Goal, _Stream):-
+    format('*** Missed: ~w / ~w / ~w / ~w~n', [Port, Frame, N, Goal]).
+    
+generate_node_ref(Frame, Choice, Reference) :-
     % I could not tell from a quick look of the SWI-Prolog source code what a
     % good reference would be, so using a combination of frame and PC as a starting
     % point
-    prolog_frame_attribute(Frame, pc, PC),
-    atomic_list_concat([f, Frame, p, PC], Reference).
 
-generate_parent_node_ref(Frame, Reference) :-
+    % TODO: Remove, update comments
+    %prolog_frame_attribute(Frame, pc, PC),
+    atomic_list_concat([f, Frame], Reference).
+
+generate_parent_node_ref(Frame, Choice, Reference) :-
     prolog_frame_attribute(Frame, parent, Parent),
-    generate_node_ref(Parent, Reference).
+    generate_node_ref(Parent, Choice, Reference).
 
 track_ungrounded_args(Idx, Frame) :-
     prolog_frame_attribute(Frame, argument(Idx), _Arg),
