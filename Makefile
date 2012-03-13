@@ -15,8 +15,11 @@ examples/%.png:
 	$(PROLOG) -q -t "generate." -s examples/$(*F).pl
 	dot -Tpng examples/$(*F).dot > $@
 
-exec-tests:
+exec-tests: tmp
 	$(PROLOG) -g "run_tests,halt." -s dot_trace.plt
 
-tmp/%.png: exec-tests
+tmp:
+	mkdir tmp
+
+tmp/%.png: exec-tests tmp
 	dot -Tpng tmp/$(*F).dot > $@
