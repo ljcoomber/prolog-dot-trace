@@ -12,12 +12,12 @@ dot_trace_file(DstFile, Goal) :-
 dot_trace_stream(Stream, Goal) :-
     % Dummy predicate to stop later lookups failing when there are no unbound
     % vars in the program execution
-    asserta(dot_trace:varbound(a, a, a)),
+    retractall(dot_trace:varbound/3),
+    asserta(dot_trace:varbound(a, a, a, a)),
     
     recorda(trace_stream, Stream, Ref),
     
     print(Stream, 'digraph prologTrace {'), nl(Stream),
-
     prolog_current_frame(Frame),
 
     generate_node_ref(Frame, 0, NodeRef),
@@ -27,11 +27,13 @@ dot_trace_stream(Stream, Goal) :-
     %visible(+all), visible(+cut),
     call(Goal),
     notrace,
+    
     print(Stream, '}'), nl(Stream),
 
     % Clean-up
     erase(Ref),
     flag(node_id, _, 1).
+
 
 /*
 prolog_trace_interception(Port, Frame, Choice, continue):-
@@ -96,47 +98,30 @@ step(exit, Frame, Choice, N, Goal, Stream):-
     prolog_frame_attribute(Frame, parent, ParentFrame),    
     atomic_list_concat([f, ParentFrame], ParentFrameRef),
 
-    % TODO: Support multiple args
-    prolog_frame_attribute(Frame, level, Level),    
+    % Assemble args as values that have been bound
+    findall(ArgVal,
+            (dot_trace:varbound(Frame, Idx, Arg),
+             ground(Arg),
+             prolog_frame_attribute(Frame, argument(Idx), Val),
+             \+Val = [],
+             format(atom(ArgVal), '~w=~W ', [Arg, Val, [portray(true), quoted(true)]])),
+            ArgVals),
 
+    concat_atom(ArgVals, ArgValStr),
     
-    (  dot_trace:varbound(Level, Idx, Arg)
-    -> prolog_frame_attribute(Frame, argument(Idx), Val),
-       format(Stream, '    "~w" -> "~w" [label="~w ~w=~W"];~n',
-              [FrameRef, ParentFrameRef, N, Arg, Val, [portray(true), quoted(true)]]),
-       retract(dot_trace:varbound(Level, Idx, Arg))
-    ;  format(Stream, '    "~w" -> "~w" [label="~w"];~n',
-              [FrameRef, ParentFrameRef, N])
-    ),
-    true.
-
+    format(Stream, '    "~w" -> "~w" [label="~w ~w"];~n',
+           [FrameRef, ParentFrameRef, N, ArgValStr]),
+    retractall(dot_trace:varbound(Frame, _, _)),
     
-
-    
-    %format(Stream, '    "~w" -> "~w" [label="~w: ~w"];~n',
-    %       [FrameRef, ParentFrameRef, N, Goal]).
-
-step(fail, Frame, Choice, N, _Goal, Stream):-
-    atomic_list_concat([f, Frame], FrameRef),
-    atomic_list_concat([f, Frame, p, exit, c, Choice], PortRef),
-
-    prolog_frame_attribute(Frame, parent, ParentFrame),    
-
-    atomic_list_concat([f, ParentFrame], ParentFrameRef),
-
-    format(Stream, '    "~w" -> "~w" [label="~w", color="red"];~n',
-           [FrameRef, ParentFrameRef, N]).
-
-
-/*
-  generate_node_ref(Frame, Choice, Reference),
-    generate_parent_node_ref(Frame, Choice, ParentReference),
+    %generate_node_ref(Frame, Choice, Reference),
+    %generate_parent_node_ref(Frame, Choice, ParentReference),
 
     (  prolog_choice_attribute(Choice, frame, Frame),
        prolog_choice_attribute(Choice, type, Type),
        \+Type = catch
-    -> generate_node_ref(Frame, Choice, ChoiceFrameRef),
+    -> %generate_node_ref(Frame, Choice, ChoiceFrameRef),
 
+       /*
        prolog_choice_attribute(Choice, parent, ChoiceParent),
        prolog_choice_attribute(ChoiceParent, frame, ChoiceParentFrame),
        
@@ -152,10 +137,25 @@ step(fail, Frame, Choice, N, _Goal, Stream):-
        format(Stream,
               '    "~w" -> "~w" [label="~w (~w)",style="dashed",color="blue"];~n',
               [ChoiceFrameRef, AltFrameRef, Type, N])
+         */
+       true
     ; true
-    ),
+    ).
 
-*/
+
+    %format(Stream, '    "~w" -> "~w" [label="~w: ~w"];~n',
+    %       [FrameRef, ParentFrameRef, N, Goal]).
+
+step(fail, Frame, Choice, N, _Goal, Stream):-
+    atomic_list_concat([f, Frame], FrameRef),
+    atomic_list_concat([f, Frame, p, exit, c, Choice], PortRef),
+
+    prolog_frame_attribute(Frame, parent, ParentFrame),    
+
+    atomic_list_concat([f, ParentFrame], ParentFrameRef),
+
+    format(Stream, '    "~w" -> "~w" [label="~w", color="red"];~n',
+           [FrameRef, ParentFrameRef, N]).
     
 step(Port, Frame, Choice, N, Goal, _Stream):-
     format('*** Missed: ~w / ~w / ~w / ~w~n', [Port, Frame, N, Goal]).
@@ -175,7 +175,6 @@ generate_parent_node_ref(Frame, Choice, Reference) :-
 
 track_ungrounded_args(Idx, Frame) :-
     prolog_frame_attribute(Frame, argument(Idx), _Arg),
-    % TODO: Inline predicate
     assert_ungrounded_arg(Idx, Frame), 
     NewIdx is Idx + 1,
     track_ungrounded_args(NewIdx, Frame).
@@ -187,9 +186,8 @@ track_ungrounded_args(Idx, Frame) :-
 assert_ungrounded_arg(Idx, Frame) :-
     prolog_frame_attribute(Frame, argument(Idx), Arg),
     (  \+ground(Arg)
-    -> prolog_frame_attribute(Frame, level, Level),
-       term_to_atom(Arg, Str),
-       % TODO: Clean-up database assertions before and after    
-       asserta(dot_trace:varbound(Level, Idx, Str))
+    -> term_to_atom(Arg, Str),
+       %format('asserting varbound(~w, ~w, ~w)~n', [Frame, Idx, Str]),
+       asserta(dot_trace:varbound(Frame, Idx, Str))
     ;  true
     ).
