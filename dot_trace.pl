@@ -39,7 +39,7 @@ prolog_trace_interception(Port, Frame, Choice, continue):-
     step(Port, Frame, Choice).
 
 step(Port, Frame, Choice):-
-	flag(node_id, N, N + 1),    
+	flag(node_id, N, N + 1),
     prolog_frame_attribute(Frame, goal, Goal),
     recorded(trace_stream, Stream),
     track_ungrounded_args(1, Frame),
@@ -126,13 +126,17 @@ step(cut_call(_), Frame, _Choice, N, _Goal, Stream):-
     
     format(Stream, '    "~w" -> "~w" [label="~w"];~n',
            [FrameRef, CutRef, N]).
-
     
 step(cut_exit(_), Frame, _Choice, N, _Goal, Stream):-
     generate_refs(Frame, FrameRef, _),    
     atomic_list_concat([cut, Frame], CutRef),
     format(Stream, '    "~w" -> "~w" [label="~w"];~n',
            [CutRef, FrameRef, N]).
+
+step(exception(Ex), Frame, _Choice, N, _Goal, Stream) :-
+    generate_refs(Frame, FrameRef, ParentRef),    
+    format(Stream, '    "~w" -> "~w" [label="~w Exception: ~w"];~n',
+           [FrameRef, ParentRef, N, Ex]).
 
 step(Port, Frame, _Choice, N, Goal, _Stream):-
     format('WARNING: Missed interception: ~w / ~w / ~w / ~w~n', [Port, Frame, N, Goal]).

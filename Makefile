@@ -3,7 +3,7 @@
 PROLOG=swipl
 
 test: tmp/p_simple.png tmp/p_backtrack.png tmp/p_cut.png \
-		tmp/p_ifthen.png
+		tmp/p_ifthen.png tmp/p_error.png
 
 clean:
 	rm -rf examples/*dot

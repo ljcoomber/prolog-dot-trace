@@ -35,24 +35,29 @@ test(p_backtrack, [nondet]) :-
 test(p_cut) :-
     do_trace(p_cut, _Statements),
     find_node(Start, '"Start"', Statements),
-    find_node(PBacktrack, '"p_cut/0"', Statements),
+    find_node(Pred, '"p_cut/0"', Statements),
 
-    find_edge(Start, PBacktrack, '"1: p_cut"', Statements),
-    find_edge(PBacktrack, Start, '"23 "', Statements).
+    find_edge(Start, Pred, '"1: p_cut"', Statements),
+    find_edge(Pred, Start, '"23 "', Statements).
         
 test(p_ifthen) :-
     do_trace(p_ifthen, _Statements),
 
     find_node(Start, '"Start"', Statements),
-    find_node(PBacktrack, '"p_ifthen/0"', Statements),
+    find_node(Pred, '"p_ifthen/0"', Statements),
 
-    find_edge(Start, PBacktrack, '"1: p_ifthen"', Statements),
-    find_edge(PBacktrack, Start, '"8 "', Statements).
+    find_edge(Start, Pred, '"1: p_ifthen"', Statements),
+    find_edge(Pred, Start, '"8 "', Statements).
     
+test(p_error) :-
+    do_trace(p_error, _Statements),
 
-%test(p_error, blocked(todo)) :-
-%    do_trace(p_error, _Statements).    
+    find_node(Start, '"Start"', Statements),
+    find_node(Pred, '"p_error/0"', Statements),
 
+    find_edge(Start, Pred, '"1: p_error"', Statements),
+    find_edge(Pred, Start, '"14 "', Statements).
+    
 :- end_tests(dot_trace).
 
 do_trace(Pred, Statements) :-
@@ -66,7 +71,6 @@ do_trace(Pred, Statements) :-
                        (read_stream_to_codes(RStream, Result),
                         dot_dcg:graph(digraph(_, Statements), Result, [])),
                        close(RStream)).
-
 
 find_edge(Start, End, Label, Statements) :-
     member(edge([Start, End], Attrs), Statements),
