@@ -120,16 +120,19 @@ step(fail, Frame, _Choice, N, _Goal, Stream):-
 
 step(cut_call(_), Frame, _Choice, N, _Goal, Stream):-
     generate_refs(Frame, FrameRef, _),
-    atomic_list_concat([cut, Frame],
-    format(Stream, '    "~w" -> "~w" [label="~w: !"];~n',
-           [ParentFrameRef, FrameRef, N]).
+    atomic_list_concat([cut, Frame], CutRef),
+    format(Stream, '    "~w" [label="!"];~n',
+           [CutRef]),
+    
+    format(Stream, '    "~w" -> "~w" [label="~w"];~n',
+           [FrameRef, CutRef, N]).
 
     
 step(cut_exit(_), Frame, _Choice, N, _Goal, Stream):-
     generate_refs(Frame, FrameRef, _),    
-    
-    format(Stream, '    "~w" -> "~w" [label="~w cut"];~n',
-           [FrameRef, FrameRef, N]).
+    atomic_list_concat([cut, Frame], CutRef),
+    format(Stream, '    "~w" -> "~w" [label="~w"];~n',
+           [CutRef, FrameRef, N]).
 
 step(Port, Frame, _Choice, N, Goal, _Stream):-
     format('*** Missed: ~w / ~w / ~w / ~w~n', [Port, Frame, N, Goal]).
