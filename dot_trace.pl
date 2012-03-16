@@ -13,7 +13,7 @@ dot_trace_stream(Stream, Goal) :-
     % Dummy predicate to stop later lookups failing when there are no unbound
     % vars in the program execution
     retractall(dot_trace:varbound/3),
-    asserta(dot_trace:varbound(a, a, a, a)),
+    asserta(dot_trace:varbound(a, a, a)),
     
     recorda(trace_stream, Stream, Ref),
     
@@ -23,8 +23,9 @@ dot_trace_stream(Stream, Goal) :-
     generate_refs(Frame, FrameRef, _),
     format(Stream, '    "~w" [label="Start"];~n', [FrameRef]),
 
+    %visible(+all),
+    visible(+cut),    
     trace,
-    %visible(+all), visible(+cut),
     call(Goal),
     notrace,
     
@@ -45,7 +46,7 @@ step(Port, Frame, Choice):-
 
     generate_refs(Frame, FrameRef, _),
     prolog_frame_attribute(Frame, predicate_indicator, Pred),
-    
+
     format(Stream, '    "~w" [shape="box",label="~w"];~n',
            [FrameRef, Pred]),
 
@@ -116,10 +117,22 @@ step(fail, Frame, _Choice, N, _Goal, Stream):-
        format(Stream, '    "~w" -> "~w" [color="blue"];~n', [FrameRef, AltFrameRef])
     ;  true
     ).
+
+step(cut_call(_), Frame, _Choice, N, _Goal, Stream):-
+    generate_refs(Frame, FrameRef, _),
+    atomic_list_concat([cut, Frame],
+    format(Stream, '    "~w" -> "~w" [label="~w: !"];~n',
+           [ParentFrameRef, FrameRef, N]).
+
     
+step(cut_exit(_), Frame, _Choice, N, _Goal, Stream):-
+    generate_refs(Frame, FrameRef, _),    
+    
+    format(Stream, '    "~w" -> "~w" [label="~w cut"];~n',
+           [FrameRef, FrameRef, N]).
+
 step(Port, Frame, _Choice, N, Goal, _Stream):-
-    format('*** Missed: ~w / ~w / ~w / ~w~n', [Port, Frame, N, Goal]),
-    fail.
+    format('*** Missed: ~w / ~w / ~w / ~w~n', [Port, Frame, N, Goal]).
     
 generate_refs(Frame, FrameRef, ParentFrameRef) :-
     atomic_list_concat([f, Frame], FrameRef),
