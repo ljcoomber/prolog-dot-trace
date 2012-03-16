@@ -1,48 +1,35 @@
 % TODO: Find way to match variable names and verify calls with ungrounded vars
-% TODO: Put in finer grain tests to compensate for the above
+% TODO: Put in finer grain tests to compensate for the above, though very hard
+%       when dealing with frame vars!
 
 %:- use_module(library(readutil)).
 :- use_module(dot_trace).
 :- use_module('lib/dot-dcg/dot_dcg').
 
-% Must use modified portray_text module so that quotes are escaped
+% Must use modified portray_text module so that quotes are escaped for dot
 :- use_module('lib/swi-prolog/portray_escaped_text').
 :- set_portray_text(min_length, 1).
 
 :- begin_tests(dot_trace).
 
 test(p_simple) :-
-    % Stricter testing is not possible with ungrounded vars 
-    do_trace(p_simple, _Statements),
+    % Stricter testing is not possible due to ungrounded vars 
+    do_trace(p_simple, Statements),
 
     find_node(Start, '"Start"', Statements),
-    find_node(PSimple, '"p_simple"', Statements),
-    find_node(IsList, '"system:is_list([97,98,99,100])"', Statements),
+    find_node(PSimple, '"p_simple/0"', Statements),
 
-    find_edge(Start, PSimple, '"0"', Statements),
-    find_edge(PSimple, App1, '"1"', Statements),
-    find_edge(App1, App2, '"2"', Statements),
-    find_edge(App2, _, '"3"', Statements),
-    find_edge(App1, PSimple, _, Statements),
-    find_edge(PSimple, IsList, '"7"', Statements),
-    find_edge(IsList, PSimple, '"8"', Statements),
-    find_edge(PSimple, Start, '"9"', Statements).
+    find_edge(Start, PSimple, '"0: p_simple"', Statements),
+    find_edge(PSimple, Start, '"9 "', Statements).
 
-test(p_backtrack, [nondet]) :-   
-    do_trace(p_backtrack, _Statements),
+test(p_backtrack, [nondet]) :-
+    do_trace(p_backtrack, Statements),
 
     find_node(Start, '"Start"', Statements),
-    find_node(PBacktrack, '"p_backtrack"', Statements),
+    find_node(PBacktrack, '"p_backtrack/0"', Statements),
 
-    find_edge(Start, PBacktrack, '"1"', Statements),
-    find_edge(PBacktrack, App1, '"2"', Statements),
-    find_edge(PBacktrack, App1, '"6"', Statements),
-
-    find_edge(U1, U2, '"4"', Statements),
-    find_edge(U2, U1, '"5"', Statements),
-
-    find_edge(U3, U4, '"10"', Statements),
-    find_edge(U4, U3, '"11"', Statements).
+    find_edge(Start, PBacktrack, '"1: p_backtrack"', Statements),
+    find_edge(PBacktrack, Start, '"19 "', Statements).
 
 %test(p_cut) :-
 %    do_trace(p_cut, _Statements).
@@ -59,9 +46,9 @@ do_trace(Pred, Statements) :-
     atomic_list_concat(['tmp/', Pred, '.dot'], File),
 
     setup_call_cleanup(open(File, write, WStream),
-                       dot_trace:dot_trace_stream(WStream, Pred),
+                       once(dot_trace:dot_trace_stream(WStream, Pred)),
                        close(WStream)),
-
+    
     setup_call_cleanup(open(File, read, RStream),
                        (read_stream_to_codes(RStream, Result),
                         dot_dcg:graph(digraph(_, Statements), Result, [])),
@@ -73,8 +60,9 @@ find_edge(Start, End, Label, Statements) :-
     member(attr(label,Label), Attrs), !.
     
 find_node(Id, Label, Statements) :-
-    member(node_stmt(Id, [attr(label,Label)]), Statements), !.
-
+    member(node_stmt(Id, Attrs), Statements),
+    member(attr(label, Label), Attrs),
+    !.
 
 % The following is taken from the SWI Prolog test file test_trace_callback.pl
 
