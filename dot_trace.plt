@@ -39,10 +39,16 @@ test(p_cut) :-
 
     find_edge(Start, PBacktrack, '"1: p_cut"', Statements),
     find_edge(PBacktrack, Start, '"23 "', Statements).
+        
+test(p_ifthen) :-
+    do_trace(p_ifthen, _Statements),
+
+    find_node(Start, '"Start"', Statements),
+    find_node(PBacktrack, '"p_ifthen/0"', Statements),
+
+    find_edge(Start, PBacktrack, '"1: p_ifthen"', Statements),
+    find_edge(PBacktrack, Start, '"8 "', Statements).
     
-    
-%test(p_ifthen, blocked(todo)) :-
-%    do_trace(p_ifthen, _Statements).
 
 %test(p_error, blocked(todo)) :-
 %    do_trace(p_error, _Statements).    
