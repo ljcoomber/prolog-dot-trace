@@ -33,7 +33,13 @@ test(p_backtrack, [nondet]) :-
     find_edge(PBacktrack, Start, '"19 "', Statements).
 
 test(p_cut) :-
-    do_trace(p_cut, _Statements).
+    do_trace(p_cut, _Statements),
+    find_node(Start, '"Start"', Statements),
+    find_node(PBacktrack, '"p_cut/0"', Statements),
+
+    find_edge(Start, PBacktrack, '"1: p_cut"', Statements),
+    find_edge(PBacktrack, Start, '"23 "', Statements).
+    
     
 %test(p_ifthen, blocked(todo)) :-
 %    do_trace(p_ifthen, _Statements).
