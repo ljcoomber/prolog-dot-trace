@@ -1,4 +1,5 @@
 % TODO: Find way to match variable names and verify calls with ungrounded vars
+% TODO: Do not show 'local' args (from callable clauses?)
 % TODO: Put in finer grain tests to compensate for the above, though very hard
 %       when dealing with frame vars!
 
