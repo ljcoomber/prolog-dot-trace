@@ -135,7 +135,7 @@ step(cut_exit(_), Frame, _Choice, N, _Goal, Stream):-
            [CutRef, FrameRef, N]).
 
 step(Port, Frame, _Choice, N, Goal, _Stream):-
-    format('*** Missed: ~w / ~w / ~w / ~w~n', [Port, Frame, N, Goal]).
+    format('WARNING: Missed interception: ~w / ~w / ~w / ~w~n', [Port, Frame, N, Goal]).
     
 generate_refs(Frame, FrameRef, ParentFrameRef) :-
     atomic_list_concat([f, Frame], FrameRef),
