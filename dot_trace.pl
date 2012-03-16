@@ -61,7 +61,7 @@ step(redo, Frame, _Choice, N, Goal, Stream):-
     format(Stream, '    "~w" -> "~w" [label="~w: ~W", style="dashed"];~n',
            [ParentFrameRef, FrameRef, N, Goal, [portray(true), quoted(true)]]).
 
-step(exit, Frame, Choice, N, _Goal, Stream):-
+step(exit, Frame, _Choice, N, _Goal, Stream):-
     generate_refs(Frame, FrameRef, ParentFrameRef),    
 
     % Assemble args as values that have been bound
@@ -98,7 +98,6 @@ step(exit, Frame, Choice, N, _Goal, Stream):-
        prolog_frame_attribute(AltFrame, context_module, AltModule),
        AltModule \= plunit
     -> atomic_list_concat([f, AltFrame], AltFrameRef),
-       prolog_frame_attribute(AltFrame, predicate_indicator, AltPred),
        prolog_frame_attribute(AltFrame, goal, AltGoal),
        
        format(Stream, '    "~w" -> "~w" [label="(~w) ~W",shape="box",style="dashed",color="green"];~n',
